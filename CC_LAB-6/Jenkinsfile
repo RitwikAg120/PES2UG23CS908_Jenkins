@@ -3,24 +3,29 @@ pipeline {
     stages {
         stage('Build Backend Image') {
             steps {
+                echo 'Starting to build backend Docker image...'
                 sh '''
                 docker rmi -f backend-app || true
                 docker build -t backend-app CC_LAB-6/backend
                 '''
+                echo 'Backend Docker image built successfully.'
             }
         }
         stage('Deploy Backend Containers') {
             steps {
+                echo 'Deploying backend containers...'
                 sh '''
                 docker network create app-network || true
                 docker rm -f backend1 backend2 || true
                 docker run -d --name backend1 --network app-network backend-app
                 docker run -d --name backend2 --network app-network backend-app
                 '''
+                echo 'Backend containers deployed successfully.'
             }
         }
         stage('Deploy NGINX Load Balancer') {
             steps {
+                echo 'Deploying NGINX load balancer...'
                 sh '''
                 docker rm -f nginx-lb || true
                 
@@ -39,6 +44,7 @@ pipeline {
                 # Reload NGINX to apply the new configuration
                 docker exec nginx-lb nginx -s reload
                 '''
+                echo 'NGINX load balancer deployed and reloaded successfully.'
             }
         }
     }
